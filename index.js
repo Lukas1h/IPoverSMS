@@ -49,15 +49,21 @@ client.on("connect", function(){
                     /*
                         Example message:
                         {
-                            "url":"https://google.com",
-                            "type":"file"
+                            "url":"https://www.reddit.com/r/cgiMemes/top/?t=all",
+                            "type":"img"
                         }
                         */
-
+                    
+                    
                     var msg = parseMessage(result).substring(10)
+                        
+
                     console.log("Received: "+msg+"\n")
+                    console.log("Decoding Base64.\n")
+                    var decoded = Buffer.from(msg, 'base64').toString()
+                    console.log("Done.\n",decoded)
                     console.log("Parsing json\n")
-                    var jsonMsg = JSON.parse(parseMessage(result).substring(10))
+                    var jsonMsg = JSON.parse(decoded)
                     var url = jsonMsg.url
                     var type = jsonMsg.type
                     console.log("Done.\n",jsonMsg)
@@ -68,24 +74,22 @@ client.on("connect", function(){
                         console.log("Valid.\n")
                         if(type=="file"){
                             console.log("Sending FILE Message...\n")
-                            try {
-                                transporter.sendMail({
-                                    from: 'lukas1h07@gmail.com',
-                                    to: "5414303372@mms.uscc.net ",
-                                    subject: "__",
-                                    text: "__",
-                                    html: "__",
-                                    attachments:[{   // encoded string as an attachment
-                                        filename: 'cat.html',
-                                        path:url
-                                    }]
-                                });
-                                console.log("Done.")
-                            }
-                            catch(err) {
-                                console.log("Looks like there was an error.")
-                                
-                            }
+                            
+
+
+                            transporter.sendMail({
+                                from: 'lukas1h07@gmail.com',
+                                to: "5414303372@mms.uscc.net ",
+                                subject: "__",
+                                text: "__",
+                                html: "__",
+                                attachments:[{   // encoded string as an attachment
+                                    filename: 'cat.html',
+                                    path:url
+                                }]
+                            });
+                            console.log("Done.")
+                            
                         }else{
                             console.log("Sending SCREENSHOT Message...\n")
                             transporter.sendMail({
