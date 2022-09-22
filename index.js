@@ -49,7 +49,7 @@ client.on("connect", function(){
                     var msg = parseMessage(result).substring(10)
                     console.log("Received: "+msg+"\n")
                     console.log("Checking if URL is valid.\n")
-                    if(isValidUrl(msg)){
+                    if(isValidUrl(msg) || true){ //Its the truth, aint it?
                         console.log("Valid.\n")
                         console.log("Sending Message...\n")
                         try {
