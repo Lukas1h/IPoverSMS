@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
+const request = require('request');
 
 
 var inbox = require("inbox");
@@ -8,14 +9,14 @@ const fetch = require('node-fetch')
 const nodemailer = require("nodemailer");
 
 
-
+//Swn7448810isthebestpassword
 let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
+    host: "mail.smtp2go.com",
+    port: 2525,
     secure: false, // true for 465, false for other ports
     auth: {
-        user: "lukas1h07@gmail.com", // generated ethereal user
-        pass: "mjxarhbsvqopeouk", // generated ethereal password
+        user: "lukas1h", // generated ethereal user
+        pass: "Swn7448810", // generated ethereal password
     },
 });
 
@@ -45,14 +46,48 @@ client.on("connect", function(){
                     result += chunk;
                 });
                 readable.on('end', function () {
+                    /*
+                        Example message:
+                        {
+                            "url":"https://google.com",
+                            "type":"file"
+                        }
+                        */
 
                     var msg = parseMessage(result).substring(10)
                     console.log("Received: "+msg+"\n")
+                    console.log("Parsing json\n")
+                    var jsonMsg = JSON.parse(parseMessage(result).substring(10))
+                    var url = jsonMsg.url
+                    var type = jsonMsg.type
+                    console.log("Done.\n",jsonMsg)
+                    console.log("\nURL:"+url+"\ntype:"+type+"\n")
+
                     console.log("Checking if URL is valid.\n")
-                    if(isValidUrl(msg) || true){ //Its the truth, aint it?
+                    if(isValidUrl(url) || true){ //Its the truth, aint it?
                         console.log("Valid.\n")
-                        console.log("Sending Message...\n")
-                        try {
+                        if(type=="file"){
+                            console.log("Sending FILE Message...\n")
+                            try {
+                                transporter.sendMail({
+                                    from: 'lukas1h07@gmail.com',
+                                    to: "5414303372@mms.uscc.net ",
+                                    subject: "__",
+                                    text: "__",
+                                    html: "__",
+                                    attachments:[{   // encoded string as an attachment
+                                        filename: 'cat.html',
+                                        path:url
+                                    }]
+                                });
+                                console.log("Done.")
+                            }
+                            catch(err) {
+                                console.log("Looks like there was an error.")
+                                
+                            }
+                        }else{
+                            console.log("Sending SCREENSHOT Message...\n")
                             transporter.sendMail({
                                 from: 'lukas1h07@gmail.com',
                                 to: "5414303372@mms.uscc.net ",
@@ -60,16 +95,16 @@ client.on("connect", function(){
                                 text: "__",
                                 html: "__",
                                 attachments:[{   // encoded string as an attachment
-                                    filename: 'cat.html',
-                                    path:msg
-                                }]
+                                    filename: 'cat.jpg',
+                                    path:"https://api.apiflash.com/v1/urltoimage?access_key=30001f3a0411446e9a6d180726a0ec4e&wait_until=page_loaded&full_page=true&width=750&no_ads=true&no_cookie_banners&url="+url
+                                },{   // encoded string as an attachment
+                                        filename: 'cat.html',
+                                        path:url
+                                    }]
                             });
                             console.log("Done.")
                         }
-                        catch(err) {
-                            console.log("Looks like there was an error.")
-                            
-                        }
+                    
                     }else{
                         console.log("Invalid.\nSkiping.\n")
                     }           

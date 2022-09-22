@@ -4,7 +4,8 @@
     "imap": "^0.8.19",
     "inbox": "^1.1.59",
     "node-fetch": "^2.6.7",
-    "nodemailer": "^6.7.8"
+    "nodemailer": "^6.7.8",
+    "webshot": "^0.18.0"
   },
   "engines": {
     "node": "8.1.2"
