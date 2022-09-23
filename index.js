@@ -4,10 +4,7 @@ const port = process.env.PORT || 3000
 const request = require('request');
 const requestNull = require('request').defaults({ encoding: null });
 const fs = require('fs');
-
-const jsdom = require("jsdom")
-const { JSDOM } = jsdom
-global.DOMParser = new JSDOM().window.DOMParser
+const { DOMParser } = require('xmldom')
 
 
 const inbox = require("inbox");
@@ -84,7 +81,21 @@ client.on("connect", function(){
                                     let parsed = DOMParsing.parseFromString(body, "text/html")
                                     console.log("Done. "+"\n")
                                     console.log("Getting images. "+"\n")
-                                    let images = Array.prototype.map.call(parsed.images, img => img.src)
+
+                                    var images = []
+                                    Array.from(parsed.getElementsByTagName("img")).forEach((one)=>{
+                                        console.log(one)
+                                        Array.from(one.attributes).forEach((two)=>{
+                                            console.log(two)
+                                            if(two.name == 'src'){
+                                                console.log("is src")
+                                                images.push(two.value)
+                                            }
+                                        })
+                                    })
+                                    
+                                    
+
                                     console.log("Done. " + images[0] + "\n")
                                     
 

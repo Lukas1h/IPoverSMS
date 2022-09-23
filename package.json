@@ -6,10 +6,10 @@
     "html-to-image": "^1.10.8",
     "imap": "^0.8.19",
     "inbox": "^1.1.59",
-    "jsdom": "^20.0.0",
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.8",
-    "webshot": "^0.18.0"
+    "webshot": "^0.18.0",
+    "xmldom": "^0.6.0"
   },
   "engines": {
     "node": "8.1.2"
