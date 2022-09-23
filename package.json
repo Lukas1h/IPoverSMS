@@ -1,8 +1,12 @@
 {
   "dependencies": {
+    "dom-to-image-more": "^2.12.0",
+    "dom-to-svg": "^0.12.2",
     "express": "^4.18.1",
+    "html-to-image": "^1.10.8",
     "imap": "^0.8.19",
     "inbox": "^1.1.59",
+    "jsdom": "^20.0.0",
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.8",
     "webshot": "^0.18.0"
