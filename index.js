@@ -123,7 +123,7 @@ client.on("connect", function(){
                                                 console.log("Done.\n")
                                                 console.log("Replaceing: ",image.substring(0,20))
                                                 console.log("With:",data.substring(0, 20) ,"\n")
-                                                html = html.replaceAll(image,data)
+                                                html = html.replace(image,data)
 
                                                 i++
                                                 if(i==images.length){
