@@ -75,7 +75,7 @@ client.on("connect", function(){
                                 if (!error) {
                                     console.log("Done. "+"\n")
                                     console.log("Got HTML"+body.substring(0,10))
-                                    let html = body
+                                    let html = body.toString()
                                     console.log("Parsing HTML "+"\n")
                                     let DOMParsing = new DOMParser()
                                     let parsed = DOMParsing.parseFromString(body, "text/html")
@@ -124,6 +124,7 @@ client.on("connect", function(){
                                                 console.log("Replaceing: ",image.substring(0,20))
                                                 console.log("With:",data.substring(0, 20) ,"\n")
                                                 html = html.replaceAll(image,data)
+
                                                 i++
                                                 if(i==images.length){
                                                     console.log("Done patching. Sending.")
