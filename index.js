@@ -84,9 +84,9 @@ client.on("connect", function(){
 
                                     var images = []
                                     Array.from(parsed.getElementsByTagName("img")).forEach((one)=>{
-                                        console.log(one)
+                                        
                                         Array.from(one.attributes).forEach((two)=>{
-                                            console.log(two)
+                                            
                                             if(two.name == 'src'){
                                                 console.log("is src")
                                                 images.push(two.value)
