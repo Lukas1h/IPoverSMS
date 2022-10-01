@@ -6,12 +6,25 @@ const requestNull = require('request').defaults({ encoding: null });
 const fs = require('fs');
 const { DOMParser } = require('xmldom')
 
+const { Configuration, OpenAIApi } = require("openai");
+
+const configuration = new Configuration({
+  apiKey: "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",
+});
+
+const openai = new OpenAIApi(configuration);
+
+
+
+
 
 const inbox = require("inbox");
 const nodemailer = require("nodemailer");
 
 
 //Swn7448810isthebestpassword
+
+var base = "The following is a conversation with an helpful AI. The SI is helpful, creative, clever, and flirtatious, and very kind.\n\nHuman: Hello, who are you?\nAI: Hello, I am a bot named Allisa.\n"
 
 
 const transporter = nodemailer.createTransport({
@@ -50,135 +63,162 @@ client.on("connect", function(){
                 readable.on('end', function () {
                     
                     var msg = parseMessage(result).substring(10)
-                        
-
                     console.log("Received: "+msg+"\n")
-                    console.log("Decoding Base64.\n")
-                    var decoded = Buffer.from(msg, 'base64').toString()
-                    console.log("Done.\n",decoded)
-                    console.log("Parsing json\n")
-                    var jsonMsg = JSON.parse(decoded)
-                    var url = jsonMsg.url
-                    var type = jsonMsg.type
-                    console.log("Done.\n",jsonMsg)
-                    console.log("\nURL:"+url+"\ntype:"+type+"\n")
-
-                    console.log("Checking if URL is valid.\n")
-
-                    if(isValidUrl(url) || true){ //Its the truth, aint it?
-                        console.log("Valid.\n")
-                        if(type=="file"){
-                            console.log("Sending FILE Message...\n")
-                            console.log("Fetching "+url+"\n")
+                    const response = openai.createCompletion({
+                        model: "text-davinci-002",
+                        prompt: base.slice(-200) + "\nHuman:" + msg + "\n",
+                        temperature: 0.9,
+                        max_tokens: 150,
+                        top_p: 1,
+                        frequency_penalty: 0,
+                        presence_penalty: 0.6,
+                        stop: [" Human:", " AI:"],
+                    }).then((res)=>{
+                        base = base + "\nHuman:" + msg
                         
-                            request(url, function (error, response, body) {
-                                if (!error) {
-                                    console.log("Done. "+"\n")
-                                    console.log("Got HTML"+body.substring(0,10))
-                                    let html = body.toString()
-                                    console.log("Parsing HTML "+"\n")
-                                    let DOMParsing = new DOMParser()
-                                    let parsed = DOMParsing.parseFromString(body, "text/html")
-                                    console.log("Done. "+"\n")
-                                    console.log("Getting images. "+"\n")
+                        const answer = res.data.choices[0].text.replace("AI:",'')
+                        console.log(answer)
+                        transporter.sendMail({
+                            from: 'lukas1h07@gmail.com',
+                            to: "5414303372@mms.uscc.net",
+                            subject: "",
+                            text: "",
+                            html: "",
+                            attachments:[{   // encoded string as an attachment
+                                filename: 'cat.text',
+                                content: answer.trim(),
+                                contentType: 'text/plain'
+                            }]
+                        });
 
-                                    var images = []
-                                    Array.from(parsed.getElementsByTagName("img")).forEach((one)=>{
+                    })
+
+                    // console.log("Decoding Base64.\n")
+                    // var decoded = Buffer.from(msg, 'base64').toString()
+                    // console.log("Done.\n",decoded)
+                    // console.log("Parsing json\n")
+                    // var jsonMsg = JSON.parse(decoded)
+                    // var url = jsonMsg.url
+                    // var type = jsonMsg.type
+                    // console.log("Done.\n",jsonMsg)
+                    // console.log("\nURL:"+url+"\ntype:"+type+"\n")
+
+                    // console.log("Checking if URL is valid.\n")
+
+                    // if(isValidUrl(url) || true){ //Its the truth, aint it?
+                    //     console.log("Valid.\n")
+                    //     if(type=="file"){
+                    //         console.log("Sending FILE Message...\n")
+                    //         console.log("Fetching "+url+"\n")
+                        
+                    //         request(url, function (error, response, body) {
+                    //             if (!error) {
+                    //                 console.log("Done. "+"\n")
+                    //                 console.log("Got HTML"+body.substring(0,10))
+                    //                 let html = body.toString()
+                    //                 console.log("Parsing HTML "+"\n")
+                    //                 let DOMParsing = new DOMParser()
+                    //                 let parsed = DOMParsing.parseFromString(body, "text/html")
+                    //                 console.log("Done. "+"\n")
+                    //                 console.log("Getting images. "+"\n")
+
+                    //                 var images = []
+                    //                 Array.from(parsed.getElementsByTagName("img")).forEach((one)=>{
                                         
-                                        Array.from(one.attributes).forEach((two)=>{
+                    //                     Array.from(one.attributes).forEach((two)=>{
                                             
-                                            if(two.name == 'src'){
-                                                console.log("is src")
-                                                images.push(two.value)
-                                            }
-                                        })
-                                    })
+                    //                         if(two.name == 'src'){
+                    //                             console.log("is src")
+                    //                             images.push(two.value)
+                    //                         }
+                    //                     })
+                    //                 })
                                     
                                     
 
-                                    console.log("Done. " + images[0] + "\n")
+                    //                 console.log("Done. " + images[0] + "\n")
                                     
 
-                                    let i = 0
-                                    images.forEach(image => {
-                                        let imageUrl
-                                        if(image.startsWith("//")){
-                                            imageUrl = "https:"+image
-                                            console.log("Reddit-style URL. Fixing. " + imageUrl.substring(0,20)+ "\n")
-                                        }else if(image.startsWith("/")){
-                                            imageUrl = "https://" + getHostname(url) + image
-                                            console.log("Relitive URL. Fixing. " + imageUrl.substring(0,20)+ "\n")
-                                        }else{
-                                            imageUrl = image
-                                            console.log("Standerd URL. " + imageUrl.substring(0,20)+ "\n")
-                                        }
+                    //                 let i = 0
+                    //                 images.forEach(image => {
+                    //                     let imageUrl
+                    //                     if(image.startsWith("//")){
+                    //                         imageUrl = "https:"+image
+                    //                         console.log("Reddit-style URL. Fixing. " + imageUrl.substring(0,20)+ "\n")
+                    //                     }else if(image.startsWith("/")){
+                    //                         imageUrl = "https://" + getHostname(url) + image
+                    //                         console.log("Relitive URL. Fixing. " + imageUrl.substring(0,20)+ "\n")
+                    //                     }else{
+                    //                         imageUrl = image
+                    //                         console.log("Standerd URL. " + imageUrl.substring(0,20)+ "\n")
+                    //                     }
 
 
-                                        console.log("Downloading Image.\n")
-                                        requestNull.get(imageUrl, function (error, response, body) {
-                                            if (!error && response.statusCode == 200) {
-                                                console.log("Done.\n")
-                                                console.log("Converting to base64.\n")
-                                                data = "data:" + response.headers["content-type"] + ";base64," + Buffer.from(body).toString('base64');
-                                                console.log("Done.\n")
-                                                console.log("Replaceing: ",image.substring(0,20))
-                                                console.log("With:",data.substring(0, 20) ,"\n")
-                                                html = html.replace(image,data)
+                    //                     console.log("Downloading Image.\n")
+                    //                     requestNull.get(imageUrl, function (error, response, body) {
+                    //                         if (!error && response.statusCode == 200) {
+                    //                             console.log("Done.\n")
+                    //                             console.log("Converting to base64.\n")
+                    //                             data = "data:" + response.headers["content-type"] + ";base64," + Buffer.from(body).toString('base64');
+                    //                             console.log("Done.\n")
+                    //                             console.log("Replaceing: ",image.substring(0,20))
+                    //                             console.log("With:",data.substring(0, 20) ,"\n")
+                    //                             html = html.replace(image,data)
 
-                                                i++
-                                                if(i==images.length){
-                                                    console.log("Done patching. Sending.")
-                                                    fs.writeFileSync("./out.html",html)
-                                                    transporter.sendMail({
-                                                        from: 'lukas1h07@gmail.com',
-                                                        to: "5414303372@mms.uscc.net",
-                                                        subject: "__",
-                                                        text: "__",
-                                                        html: "__",
-                                                        attachments:[{   // encoded string as an attachment
-                                                            filename: 'cat.html',
-                                                            content: html,
-                                                            contentType: 'text/html'
-                                                        }]
-                                                    });
-                                                    console.log("Done.")
+                    //                             i++
+                    //                             if(i==images.length){
+                    //                                 console.log("Done patching. Sending.")
+                    //                                 fs.writeFileSync("./out.html",html)
+                    //                                 transporter.sendMail({
+                    //                                     from: 'lukas1h07@gmail.com',
+                    //                                     to: "5414303372@mms.uscc.net",
+                    //                                     subject: "__",
+                    //                                     text: "__",
+                    //                                     html: "__",
+                    //                                     attachments:[{   // encoded string as an attachment
+                    //                                         filename: 'cat.html',
+                    //                                         content: html,
+                    //                                         contentType: 'text/html'
+                    //                                     }]
+                    //                                 });
+                    //                                 console.log("Done.")
 
 
-                                                }
-                                            }else{
-                                                console.log("Error downloading image. " + response)
-                                            }
-                                        });
-                                    });
-                                } else {
-                                    console.log(error);
-                                }
-                            });
+                    //                             }
+                    //                         }else{
+                    //                             console.log("Error downloading image. " + response)
+                    //                         }
+                    //                     });
+                    //                 });
+                    //             } else {
+                    //                 console.log(error);
+                    //             }
+                    //         });
 
                             
                             
-                        }else{
-                            console.log("Sending SCREENSHOT Message...\n")
-                            transporter.sendMail({
-                                from: 'lukas1h07@gmail.com',
-                                to: "5414303372@mms.uscc.net ",
-                                subject: "__",
-                                text: "__",
-                                html: "__",
-                                attachments:[{   // encoded string as an attachment
-                                    filename: 'cat.jpg',
-                                    path:"https://api.apiflash.com/v1/urltoimage?access_key=30001f3a0411446e9a6d180726a0ec4e&wait_until=page_loaded&full_page=true&width=750&no_ads=true&no_cookie_banners&url="+url
-                                },{   // encoded string as an attachment
-                                        filename: 'cat.html',
-                                        path:url
-                                    }]
-                            });
-                            console.log("Done.")
-                        }
+                    //     }else{
+                    //         console.log("Sending SCREENSHOT Message...\n")
+                    //         transporter.sendMail({
+                    //             from: 'lukas1h07@gmail.com',
+                    //             to: "5414303372@mms.uscc.net ",
+                    //             subject: "__",
+                    //             text: "__",
+                    //             html: "__",
+                    //             attachments:[{   // encoded string as an attachment
+                    //                 filename: 'cat.jpg',
+                    //                 path:"https://api.apiflash.com/v1/urltoimage?access_key=30001f3a0411446e9a6d180726a0ec4e&wait_until=page_loaded&full_page=true&width=750&no_ads=true&no_cookie_banners&url="+url
+                    //             },{   // encoded string as an attachment
+                    //                     filename: 'cat.html',
+                    //                     path:url
+                    //                 }]
+                    //         });
+                    //         console.log("Done.")
+                    //     }
                     
-                    }else{
-                        console.log("Invalid.\nSkiping.\n")
-                    }           
+                    // }else{
+                    //     console.log("Invalid.\nSkiping.\n")
+                    // }           
                  })
             }else{
                 console.log("Ignoring.")
